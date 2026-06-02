@@ -50,7 +50,7 @@ async def add_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     link = update.message.text[link.offset : link.offset + link.length]
-    short = update.message.text.replace("/add ", "").replace(link, "")
+    short = update.message.text.replace("/add ", "").replace(link, "").strip()
     user = update.message.from_user.username
     date = update.message.date
     year = date.year
@@ -58,7 +58,7 @@ async def add_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     stmt = "INSERT INTO links (url ,short,submited_by, submission_date ,submission_year,submission_week) VALUES (?,?,?,?,?,?);"
     try:
-        e = db_connection.execute(stmt, (link, short, user, date, year, week))
+        db_connection.execute(stmt, (link, short, user, date, year, week))
         db_connection.commit()
     except Exception as e:
         logger.error(f"Error adding link: {e}")
@@ -67,7 +67,7 @@ async def add_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
     await context.bot.send_message(
-        chat_id=update.effective_chat.id, text=f"Link added: {link}"
+        chat_id=update.effective_chat.id, text=f"👍 Link added."
     )
 
 
@@ -94,8 +94,8 @@ async def list_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     text = ""
     for link in links:
-        text += f"{link[0]}: {link[1]}\n"
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
+        text += f"{link[0]}: {link[1]}\n\n"
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
 
 
 async def generate_liendi_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
