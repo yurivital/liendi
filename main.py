@@ -31,6 +31,7 @@ async def setcommands(application):
             BotCommand(
                 "liendi", "Generate a liendi link for all submissions in the last week"
             ),
+            BotCommand("search", "Search for links by url. Limited to 25 entries"),
         ]
     )
 
@@ -56,6 +57,7 @@ def start_bot(db_path):
     application.add_handler(CommandHandler("add", commands.add_link))
     application.add_handler(CommandHandler("list", commands.list_link))
     application.add_handler(CommandHandler("liendi", commands.generate_liendi_link))
+    application.add_handler(CommandHandler("search", commands.search_by_url))
 
     application.run_polling()
     con.close()
@@ -87,7 +89,7 @@ def set_token(db_path, token):
     con.close()
 
 
-def apply_schema(db_path):
+def apply_schema_from_con(con):
     """Apply the database schema"""
     schema = """
              CREATE TABLE IF NOT EXISTS config
@@ -114,8 +116,11 @@ def apply_schema(db_path):
                  username TEXT PRIMARY KEY
              );
              """
-    con = sqlite3.connect(db_path)
     con.executescript(schema)
+
+def apply_schema(db_path):
+    con = sqlite3.connect(db_path)
+    apply_schema_from_con(con)
     con.close()
 
 
