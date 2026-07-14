@@ -12,6 +12,17 @@ logger = logging.getLogger(__name__)
 db_connection = None
 
 
+def extract_link(message):
+    """Extract the link from a message"""
+    link = next(
+        (e for e in message.entities if e.type == telegram.MessageEntity.URL),
+        None,
+    )
+    if link is None:
+        return None
+    return message.text[link.offset : link.offset + link.length]
+
+
 def init_db(con):
     global db_connection
     db_connection = con
@@ -37,11 +48,7 @@ async def add_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    link = next(
-        (e for e in update.message.entities if e.type == telegram.MessageEntity.URL),
-        None,
-    )
-
+    link = extract_link(update.message)
     if link is None:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
@@ -49,7 +56,6 @@ async def add_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    link = update.message.text[link.offset : link.offset + link.length]
     short = update.message.text.replace("/add ", "").replace(link, "").strip()
     user = update.message.from_user.username
     date = update.message.date
@@ -128,3 +134,42 @@ async def generate_liendi_link(update: Update, context: ContextTypes.DEFAULT_TYP
         for link in user_links:
             user_text += f"{link[2]}\n{link[1]}\n\n"
         await context.bot.send_message(chat_id=update.effective_chat.id, text=user_text)
+
+
+async def search_by_url(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Search for links by URL """
+    link = extract_link(update.message)
+
+    if link is None:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="The command should have a link after /search",
+        )
+        return
+    
+    
+    search_stmt = "SELECT url, short FROM links WHERE url LIKE ? LIMIT 25;"
+    cursor = db_connection.execute(search_stmt, (f"%{link}%",))
+    if cursor is None:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="No links found for the given URL",
+        )
+        return
+
+    links = cursor.fetchall()
+    if len(links) == 0:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="No links found for the given URL",
+        )
+        return
+
+    user_text = "== Results ==\n"
+    for db_link in links:
+        if len(db_link[1]) == 0:
+            user_text += f"{db_link[0]}\n\n"
+        else:
+            user_text += f"{db_link[1]}\n{db_link[0]}\n\n"
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=user_text)
+    return None

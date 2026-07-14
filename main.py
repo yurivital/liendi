@@ -31,6 +31,7 @@ async def setcommands(application):
             BotCommand(
                 "liendi", "Generate a liendi link for all submissions in the last week"
             ),
+            BotCommand("search", "Search for links by url. Limited to 25 entries"),
         ]
     )
 
@@ -56,6 +57,7 @@ def start_bot(db_path):
     application.add_handler(CommandHandler("add", commands.add_link))
     application.add_handler(CommandHandler("list", commands.list_link))
     application.add_handler(CommandHandler("liendi", commands.generate_liendi_link))
+    application.add_handler(CommandHandler("search", commands.search_by_url))
 
     application.run_polling()
     con.close()
