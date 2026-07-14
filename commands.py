@@ -63,11 +63,11 @@ async def add_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"Error adding link: {e}")
         await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=f"Error adding link"
+            chat_id=update.effective_chat.id, text="Error adding link"
         )
         return
     await context.bot.send_message(
-        chat_id=update.effective_chat.id, text=f"👍 Link added."
+        chat_id=update.effective_chat.id, text="👍 Link added."
     )
 
 

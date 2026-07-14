@@ -1,0 +1,55 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    name: Run pytest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name : Run linter
+        run: uv run ruff check
+
+      - name: Run tests with coverage
+        run: uv run coverage run -m pytest command_tests.py
+
+      - name: Generate coverage
+        run: uv run coverage report -m --format=markdown --omit=main.py --skip-empty --skip-covered --fail-under=80 | tee coverage.md
+
+      - uses: actions/github-script@v8
+        name: "Publish coverage report"
+        if: always()
+        with:
+          script: |
+            const fs = require('fs')
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: fs.readFileSync('coverage.md', 'utf8')
+            })

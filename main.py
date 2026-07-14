@@ -87,7 +87,7 @@ def set_token(db_path, token):
     con.close()
 
 
-def apply_schema(db_path):
+def apply_schema_from_con(con):
     """Apply the database schema"""
     schema = """
              CREATE TABLE IF NOT EXISTS config
@@ -114,8 +114,11 @@ def apply_schema(db_path):
                  username TEXT PRIMARY KEY
              );
              """
-    con = sqlite3.connect(db_path)
     con.executescript(schema)
+
+def apply_schema(db_path):
+    con = sqlite3.connect(db_path)
+    apply_schema_from_con(con)
     con.close()
 
 
