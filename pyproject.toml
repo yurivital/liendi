@@ -3,7 +3,7 @@ name = "liendi"
 version = "0.1.0"
 description = "Telegram bot for managing links sent on monday morning"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
 dependencies = [
     "python-telegram-bot>=22.7",
 ]
