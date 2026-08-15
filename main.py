@@ -5,8 +5,25 @@ import logging
 import sqlite3
 import sys
 
-from telegram import BotCommand
-from telegram.ext import ApplicationBuilder, CommandHandler
+from telegram import BotCommand, Update
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    ConversationHandler,
+    MessageHandler,
+    filters,
+    TypeHandler,
+)
+
+from conversation_add import (
+    start,
+    link,
+    title,
+    description,
+    ConversationAddState,
+    cancel,
+)
+from core import init_db, authorization_callback
 
 import commands
 
@@ -21,10 +38,11 @@ parser = argparse.ArgumentParser(
 )
 
 
-async def setcommands(application):
+async def set_commands(application):
     await application.bot.setMyCommands(
         [
             BotCommand("add", "Add a link for the next liendi"),
+            BotCommand("cancel", "Cancel link submission"),
             BotCommand(
                 "list", "Get last added links from 7 days window. Limited to 25 links"
             ),
@@ -34,6 +52,30 @@ async def setcommands(application):
             BotCommand("search", "Search for links by url. Limited to 25 entries"),
         ]
     )
+
+
+def get_add_conversations():
+
+    cancel_handler = CommandHandler("cancel", cancel)
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler("add", start)],
+        states={
+            ConversationAddState.LINK.value: [
+                cancel_handler,
+                MessageHandler(filters.TEXT, link),
+            ],
+            ConversationAddState.TITLE.value: [
+                cancel_handler,
+                MessageHandler(filters.TEXT, title),
+            ],
+            ConversationAddState.DESCRIPTION.value: [
+                cancel_handler,
+                MessageHandler(filters.TEXT, description),
+            ],
+        },
+        fallbacks=[cancel_handler],
+    )
+    return conv_handler
 
 
 def start_bot(db_path):
@@ -52,12 +94,17 @@ def start_bot(db_path):
         logger.error("BOT_TOKEN configuration is empty")
         sys.exit(1)
 
-    commands.init_db(con)
-    application = ApplicationBuilder().token(token).post_init(setcommands).build()
-    application.add_handler(CommandHandler("add", commands.add_link))
+    init_db(con)
+    application = ApplicationBuilder().token(token).post_init(set_commands).build()
+
+    handler = TypeHandler(Update, authorization_callback)
+    application.add_handler(handler, -1)
+
     application.add_handler(CommandHandler("list", commands.list_link))
     application.add_handler(CommandHandler("liendi", commands.generate_liendi_link))
     application.add_handler(CommandHandler("search", commands.search_by_url))
+
+    application.add_handler(get_add_conversations())
 
     application.run_polling()
     con.close()
@@ -117,6 +164,7 @@ def apply_schema_from_con(con):
              );
              """
     con.executescript(schema)
+
 
 def apply_schema(db_path):
     con = sqlite3.connect(db_path)
