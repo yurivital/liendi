@@ -33,7 +33,7 @@ Development requirements:
 - uv
 
 Runtime requirements:
-- Python 3.14
+- Python 3.13
 - SQLite3
 - python-telegram-bot
 
@@ -41,9 +41,11 @@ Runtime requirements:
 
 Supported commands:
 
-- Telegram command `/add`: add a link into the database
+- Telegram command `/add`: start a link submission conversation.
+- Telegram command `/cancel`: cancel the submission conversation.
 - Telegram command `/list`: list the last 25 links within the last 25 days
 - Telegram command `/liendi`: generate liendi for last week. Gathers all links added during the previous week and send a message per contributing user with the list of links and a summary of the week.
+- Telegram command `/search`: search for a link in the database.
 
 ## CLI commands
 
@@ -58,3 +60,10 @@ _Parameters_:
 - `<token>` is the bot token
 - `<username>` is the username of the username as it appears in Telegram.
 
+## Conversations 
+
+### Link submission conversation
+
+> 💡 Nota: Editing and link unicity detection features are still on roadmap.
+
+![Add link](./docs/state_diagramm.add.svg)

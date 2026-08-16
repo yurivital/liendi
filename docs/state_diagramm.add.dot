@@ -1,0 +1,18 @@
+digraph{
+  start [label="/sart"]
+  link [label="Add link"]
+  title [label="Add title"]
+  description [label="Add description"]
+  end [label="End"]
+  edit [label="Edit entry ?"]
+
+  start -> link [label="Give me a link"]
+  link -> link [label="Not a link"]
+  link -> title  [label="Title of this link"]
+  title -> description  [label="Describe shortly"]
+  description -> end  [label="Link addeds"]
+  link -> edit [label="The user already submited the link"]
+  link -> end [label="Another user already submited this link"]
+  edit -> end [label="no"]
+  edit -> title [label="yes"]
+}

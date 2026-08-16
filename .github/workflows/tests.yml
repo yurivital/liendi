@@ -27,7 +27,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.14"
+          python-version: "3.13"
 
       - name: Install dependencies
         run: uv sync --dev
@@ -36,7 +36,7 @@ jobs:
         run: uv run ruff check
 
       - name: Run tests with coverage
-        run: uv run coverage run -m pytest command_tests.py
+        run: uv run coverage run -m pytest commands_tests.py conversation_add_test.py
 
       - name: Generate coverage
         run: uv run coverage report -m --format=markdown --omit=main.py --skip-empty --skip-covered --fail-under=80 | tee coverage.md
