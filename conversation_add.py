@@ -41,6 +41,23 @@ async def link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         return ConversationAddState.LINK.value
 
     context.user_data["link"] = link
+
+    search_stmt = (
+        "SELECT submited_by, COUNT(ALL) FROM links WHERE url = ? group by submited_by;"
+    )
+    db_connection = get_connection()
+    cursor = db_connection.execute(search_stmt, (link,))
+
+    link_counts = cursor.fetchall()
+
+    # Find if the link is already submitted by the user
+    if len(link_counts) > 0:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="🥴 Sorry, this link was already submitted !",
+        )
+        return ConversationHandler.END
+
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="👉 Great! Now give this link a title.",
