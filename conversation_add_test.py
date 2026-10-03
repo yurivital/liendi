@@ -34,6 +34,10 @@ async def test_workflow():
     )
 
     # The user sent a link
+    connection = sqlite3.connect(":memory:")
+    core.init_db(connection)
+    main.apply_schema_from_con(connection)
+
     url = "https://example.com"
     update = make_update(text=url, url=url)
     context.bot.send_message.reset_mock()
@@ -102,4 +106,43 @@ async def test_cancel():
     assert next_step == ConversationHandler.END
     context.bot.send_message.assert_awaited_once_with(
         chat_id=123, text="🤌 Link submission cancelled."
+    )
+
+
+testdata = [
+    ("alice", "alice", "🥴 Sorry, this link was already submitted !"),
+    ("alice", "bob", "🥴 Sorry, this link was already submitted !"),
+]
+
+
+@pytest.mark.parametrize("link_db_username, chan_username, expected", testdata)
+@pytest.mark.asyncio
+async def test_link_unicity(link_db_username, chan_username, expected):
+    context = make_context()
+    url = "https://example.com"
+
+    connection = sqlite3.connect(":memory:")
+    core.init_db(connection)
+    main.apply_schema_from_con(connection)
+    stmt = "INSERT INTO links (url ,short,submited_by, submission_date ,submission_year,submission_week) VALUES (?,?,?,?,?,?);"
+    connection.execute(
+        stmt, (url, "short", link_db_username, "2026-01-01T10:00:00Z", 2026, 1)
+    )
+    connection.commit()
+
+    update = make_update(text="/start", username=chan_username, url="")
+    next_step = await conversation_add.start(update, context)
+    assert next_step == conversation_add.ConversationAddState.LINK.value
+    context.bot.send_message.assert_awaited_once_with(
+        chat_id=123,
+        text="👋 Hi! Send me the link you’d like to add.\nType /cancel to cancel at any time.",
+    )
+
+    # The user sent a link
+    update = make_update(text=url, url=url)
+    context.bot.send_message.reset_mock()
+    next_step = await conversation_add.link(update, context)
+    assert next_step == ConversationHandler.END
+    context.bot.send_message.assert_awaited_once_with(
+        chat_id=123, text="🥴 Sorry, this link was already submitted !"
     )

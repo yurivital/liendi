@@ -1,0 +1,95 @@
+
+digraph structs {
+
+
+rankdir="LR"
+
+
+node [shape=none]
+
+config [label=<
+            <TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+                <TR>
+                    <TD COLSPAN="2"><B>config</B></TD>
+                </TR>
+            
+                <TR>
+                    <TD PORT="key_to">🔑</TD>
+                    <TD PORT="key_from">key</TD>
+                </TR>
+            
+
+                <TR>
+                    <TD PORT="value_to">&nbsp;</TD>
+                    <TD PORT="value_from">value</TD>
+                </TR>
+            
+            </TABLE>
+        >];
+        
+links [label=<
+            <TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+                <TR>
+                    <TD COLSPAN="2"><B>links</B></TD>
+                </TR>
+            
+                <TR>
+                    <TD PORT="id_to">🔑</TD>
+                    <TD PORT="id_from">id</TD>
+                </TR>
+            
+
+                <TR>
+                    <TD PORT="url_to">&nbsp;</TD>
+                    <TD PORT="url_from">url</TD>
+                </TR>
+            
+
+                <TR>
+                    <TD PORT="short_to">&nbsp;</TD>
+                    <TD PORT="short_from">short</TD>
+                </TR>
+            
+
+                <TR>
+                    <TD PORT="submited_by_to">&nbsp;</TD>
+                    <TD PORT="submited_by_from">submited_by</TD>
+                </TR>
+            
+
+                <TR>
+                    <TD PORT="submission_date_to">&nbsp;</TD>
+                    <TD PORT="submission_date_from">submission_date</TD>
+                </TR>
+            
+
+                <TR>
+                    <TD PORT="submission_year_to">&nbsp;</TD>
+                    <TD PORT="submission_year_from">submission_year</TD>
+                </TR>
+            
+
+                <TR>
+                    <TD PORT="submission_week_to">&nbsp;</TD>
+                    <TD PORT="submission_week_from">submission_week</TD>
+                </TR>
+            
+            </TABLE>
+        >];
+        
+whitelist [label=<
+            <TABLE BORDER="0" CELLSPACING="0" CELLBORDER="1">
+                <TR>
+                    <TD COLSPAN="2"><B>whitelist</B></TD>
+                </TR>
+            
+                <TR>
+                    <TD PORT="username_to">🔑</TD>
+                    <TD PORT="username_from">username</TD>
+                </TR>
+            
+            </TABLE>
+        >];
+        
+
+}

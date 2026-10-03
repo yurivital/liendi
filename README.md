@@ -60,10 +60,26 @@ _Parameters_:
 - `<token>` is the bot token
 - `<username>` is the username of the username as it appears in Telegram.
 
+## Data model
+
+![datamodel](docs)
+
+- whitelist : contains allowed usernames
+  - `username` : telegram username
+
+- links: contains links for all users
+  - `url` : link url
+  - `submited_by`: username of the person that submitted the link 
+  - `submission_date`: date of submissions, in ISO 8601 format.
+  - `submission_year`: year part in the submission date.
+  - `submission_week`: week number part in the submission date.
+
+- config : key-value store for application configurations.
+  - `BOT_TOKEN`  : value of the secret token given by the BotFather.
 ## Conversations 
 
 ### Link submission conversation
 
-> 💡 Nota: Editing and link unicity detection features are still on roadmap.
+> 💡 Nota: Editing is still on roadmap.
 
 ![Add link](./docs/state_diagramm.add.svg)
