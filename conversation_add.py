@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 import logging
+import sqlite3
 from enum import Enum
 
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
+
 from core import extract_link, get_connection
 
 logger = logging.getLogger(__name__)
@@ -91,7 +93,7 @@ async def description(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         db_connection = get_connection()
         db_connection.execute(stmt, (link, short, user, date.isoformat(), year, week))
         db_connection.commit()
-    except Exception as e:
+    except sqlite3.DatabaseError as e:
         logger.error(f"Error adding link: {e}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,

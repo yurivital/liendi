@@ -2,6 +2,7 @@
 import datetime
 import itertools
 import logging
+import sqlite3
 
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -20,7 +21,7 @@ async def list_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         db_connection = get_connection()
         cursor = db_connection.execute(stmt, (update.message.from_user.username,))
         links = cursor.fetchall()
-    except Exception as e:
+    except sqlite3.DatabaseError as e:
         logger.error(f"Error fetching links: {e}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id, text="Error fetching links"
@@ -74,7 +75,7 @@ async def search_by_url(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_id=update.effective_chat.id,
             text="The command should have a link after /search",
         )
-        return None
+        return
 
     search_stmt = "SELECT url, short FROM links WHERE url LIKE ? LIMIT 25;"
     db_connection = get_connection()
@@ -86,7 +87,7 @@ async def search_by_url(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_id=update.effective_chat.id,
             text="No links found for the given URL",
         )
-        return None
+        return
 
     user_text = "== Results ==\n"
     for db_link in links:
@@ -95,4 +96,4 @@ async def search_by_url(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             user_text += f"{db_link[1]}\n{db_link[0]}\n\n"
     await context.bot.send_message(chat_id=update.effective_chat.id, text=user_text)
-    return None
+    return
