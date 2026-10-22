@@ -2,8 +2,8 @@
 import logging
 from sqlite3 import Connection
 
-from telegram import Update, MessageEntity
-from telegram.ext import ContextTypes, ApplicationHandlerStop
+from telegram import MessageEntity, Update
+from telegram.ext import ApplicationHandlerStop, ContextTypes
 
 db_connection: Connection
 
